@@ -22,19 +22,29 @@ export async function middleware(request: NextRequest) {
     );
 
     if (verifyToken) {
-      return NextResponse.next();
+      const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
+      if (verifyToken.payload.exp && verifyToken.payload.exp < currentTime) {
+        console.log("Token Expired");
+        // Token has expired, delete it from the cookie
+        request.cookies.delete("user-token");
+        return NextResponse.json(
+          { error: { Message: "Token Expired" } },
+          { status: 401 }
+        );
+      } else {
+        return NextResponse.next();
+      }
+    } else {
+      return NextResponse.json(
+        { error: { Message: "Authentication Required" } },
+        { status: 401 }
+      );
     }
-
-    return NextResponse.json(
-      { error: { Message: "Authentication Required" } },
-      { status: 401 }
-    );
   } catch (error) {
     console.log(error);
   }
 }
 
-
 export const config = {
-  matcher : ["/","/login", "/protected"]
-}
+  matcher: ["/", "/login", "/protected"],
+};

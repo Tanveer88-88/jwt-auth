@@ -21,7 +21,6 @@ export const POST = async (request: NextRequest) => {
     cookies().set("user-token", jwt, {
       httpOnly: true,
     });
-
     return NextResponse.json({accessToken: jwt},{status: 200});
   }
 
